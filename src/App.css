@@ -1,0 +1,15 @@
+.App {
+  padding: 2rem 40rem 0;
+}
+
+@media (max-width: 1024px) {
+  .App {
+    padding: 2rem 20rem 0;
+  }
+}
+
+@media (max-width: 568px) {
+  .App {
+    padding: 2rem 10rem 0;
+  }
+}
