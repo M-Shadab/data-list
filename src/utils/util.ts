@@ -1,8 +1,4 @@
-import {
-  DataListItemObjectType,
-  DataObjectType,
-  CountObjectType,
-} from "./types";
+import { DataListItemObjectType, DataObjectType } from "./types";
 
 export const getLowerCase = (str: string): string => str.toLocaleLowerCase();
 
@@ -11,21 +7,17 @@ export const getDataObject = (data: DataListItemObjectType[]) => {
 
   // make dataObject from data list for O(1) lookup time by id field
   data.forEach((item) => {
-    dataObject[item.id] = item;
+    if (item.label in dataObject) {
+      dataObject[item.label]["count"] = dataObject[item.label]["count"] + 1;
+    } else {
+      dataObject[item.label] = {
+        id: item.label,
+        label: item.label,
+        count: 1,
+        value: false,
+      };
+    }
   });
 
   return dataObject;
-};
-
-export const getCountObject = (data: DataListItemObjectType[]) => {
-  const countObject: CountObjectType = {};
-
-  // make countObject for color item's count
-  data.forEach((item) => {
-    if (item.eyeColor in countObject) {
-      countObject[item.eyeColor]++;
-    } else countObject[item.eyeColor] = 1;
-  });
-
-  return countObject;
 };

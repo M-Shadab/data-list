@@ -6,7 +6,12 @@ type DataListItemObjectType = {
 };
 
 type DataObjectType = {
-  [key: string]: DataListItemObjectType;
+  [key: string]: {
+    id: string;
+    label: string;
+    value: boolean;
+    count: number;
+  };
 };
 
 type DataListProps = {
@@ -33,8 +38,6 @@ type CheckboxProps = {
   onChange?: () => void;
 };
 
-type CountObjectType = { [key: string]: number };
-
 type CircleProps = {
   color: string;
 };
@@ -49,7 +52,6 @@ export type {
   DataObjectType,
   SearchInputProps,
   CheckboxProps,
-  CountObjectType,
   CircleProps,
   ThemeProps,
 };

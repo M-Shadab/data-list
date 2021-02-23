@@ -21,7 +21,7 @@ const App = () => {
         data.forEach((item: any) => {
           dataList.push({
             id: item._id,
-            label: `${item.name} - ${item.eyeColor}`,
+            label: item.eyeColor,
             value: false,
             eyeColor: item.eyeColor,
           });
@@ -43,10 +43,7 @@ const App = () => {
         data={dataList}
         showCount={true}
         multiSelect={true}
-        defaultSelected={[
-          "59ce0864769c5ed9262cad25",
-          "59ce08649f2155e7353b80b1",
-        ]}
+        defaultSelected={["red", "blue"]} //passing red invalid id, to test invalid id handling
         onChange={(
           prev: DataListItemObjectType[],
           curr: DataListItemObjectType[]

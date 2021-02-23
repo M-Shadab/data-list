@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Checkbox from "../components/checkbox";
-import { getLowerCase, getDataObject, getCountObject } from "../utils/util";
+import { getLowerCase, getDataObject } from "../utils/util";
 import SearchInput from "../components/searchInput";
 import { Font16 } from "../components/typography";
 import {
@@ -14,7 +14,6 @@ import {
   DataListProps,
   DataObjectType,
   DataListItemObjectType,
-  CountObjectType,
 } from "../utils/types";
 
 const Index = ({
@@ -25,7 +24,6 @@ const Index = ({
   onChange,
 }: DataListProps) => {
   const [query, setQuery] = useState<string>("");
-  const [countObject, setCountObject] = useState<CountObjectType>({});
   const [dataObject, setDataObject] = useState<DataObjectType>({});
   const [filterDataObject, setFilterDataObject] = useState<DataObjectType>({});
   const [currentSelectedItemIdList, setCurrentSelectedItemIdList] = useState<
@@ -51,8 +49,10 @@ const Index = ({
   };
 
   const handleCheckboxChange = (id: string) => {
-    const prevDataObject: DataObjectType = { ...dataObject };
-    let prevSelectedItemIdList = [];
+    const prevDataObject: DataObjectType = JSON.parse(
+      JSON.stringify(dataObject)
+    );
+    let prevSelectedItemIdList: string[] = [];
 
     // multiSelect is enable
     if (multiSelect) {
@@ -74,13 +74,16 @@ const Index = ({
 
       // set value to false for previously selected item
       currentSelectedItemIdList[0] &&
+        currentSelectedItemIdList[0] !== id &&
         (prevDataObject[currentSelectedItemIdList[0]].value = false);
 
-      // set value to true for new selected item
-      prevDataObject[id].value = true;
+      // toggle value to true/false for new selected item
+      prevDataObject[id].value = !prevDataObject[id].value;
 
       // update currentSelectedItemIdList
-      prevSelectedItemIdList = [id];
+      prevDataObject[id].value
+        ? (prevSelectedItemIdList = [id])
+        : (prevSelectedItemIdList = []);
     }
 
     // Making call to onChange callBack to get previous and next selected item's list
@@ -94,20 +97,22 @@ const Index = ({
   useEffect(() => {
     if (data.length > 0) {
       const dataObject: DataObjectType = getDataObject(data);
-      const countObject: CountObjectType = getCountObject(data);
 
       let currentSelectedItemIdList: string[] = [];
 
       // sets value to true for listItem ids present in defaultSelected list
       if (multiSelect) {
         defaultSelected.forEach((id) => {
-          dataObject[id].value = true;
+          id in dataObject && (dataObject[id].value = true);
+
+          // handle invalid id inside default selected id-list
+          id in dataObject && currentSelectedItemIdList.push(id);
         });
 
-        currentSelectedItemIdList = defaultSelected;
+        // currentSelectedItemIdList = defaultSelected;
       } else {
         const id = defaultSelected[0];
-        if (id) {
+        if (id && id in dataObject) {
           dataObject[id].value = true;
 
           // only set first id in currentSelectedItemIdList from defaultSelected, as multiSelect is false
@@ -115,7 +120,6 @@ const Index = ({
         }
       }
 
-      setCountObject(countObject);
       setCurrentSelectedItemIdList(currentSelectedItemIdList);
       setDataObject(dataObject);
     }
@@ -124,19 +128,13 @@ const Index = ({
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = getLowerCase(e.target.value);
     setQuery(newQuery);
-
     // create newFilterData Object based on new query
     const newfilterDataObject: DataObjectType = {};
-
     for (let key in dataObject) {
       getLowerCase(dataObject[key].label).indexOf(newQuery) !== -1 &&
         (newfilterDataObject[key] = dataObject[key]);
     }
 
-    const filteredData = Object.values(newfilterDataObject);
-    const countObject: CountObjectType = getCountObject(filteredData);
-
-    setCountObject(countObject);
     setFilterDataObject(newfilterDataObject);
   };
 
@@ -152,9 +150,9 @@ const Index = ({
       />
       {showCount && (
         <CountWrapper>
-          {Object.keys(countObject).map((key) => (
+          {Object.keys(dataObject).map((key) => (
             <CircleCount key={key}>
-              <Circle color={key} /> <Font16>{countObject[key]}</Font16>
+              <Circle color={key} /> <Font16>{dataObject[key]["count"]}</Font16>
             </CircleCount>
           ))}
         </CountWrapper>
